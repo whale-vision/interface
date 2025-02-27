@@ -1,0 +1,50 @@
+@import '../../shared.module.scss';
+
+.imageViewer {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 20px;
+
+    flex-grow: 1;
+    overflow: auto;
+
+    font-family: $Default-Font-Family;
+    font-weight: bold;
+
+    margin: 25px;
+    margin-top: 20px;
+
+    padding: 5px;
+
+    background-color: $Light;
+    box-shadow: 0px 0px 10px $Grey;
+}
+
+.imageViewerSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    flex-grow: 1;
+    min-height: calc(50% - 10px);
+    overflow: auto;
+}
+
+.imageViewerImage {
+    flex-grow: 1;
+    overflow: auto;
+
+    margin-top: 5px;
+
+    max-width: 100%;
+
+    object-fit: contain;
+}
+
+.imageViewerControls {
+    display: flex;
+    align-items: center;
+}

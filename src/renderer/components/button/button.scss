@@ -1,0 +1,46 @@
+@import '../../shared.module.scss';
+
+.buttonDefaultColour {
+    display: flex;
+    align-items: center;
+
+    font-family: $Default-Font-Family;
+
+    background-color: $Background;
+    color: $Dark;
+
+    border: 2px solid $Primary;
+    border-radius: 30px;
+    margin: 5px;
+
+    padding: 4px 12px 4px 12px;
+    cursor: pointer;
+
+    &:hover {
+        border: 2px solid $Grey;
+
+        background-color: $Primary;
+        color: $Light;
+    }
+}
+
+.buttonAltColour {
+    display: flex;
+    align-items: center;
+
+    font-family: $Default-Font-Family;
+
+    background-color: $Primary;
+    color: $Light;
+
+    border: 2px solid $Grey;
+    border-radius: 30px;
+    margin: 5px;
+
+    padding: 4px 12px 4px 12px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: $Dark;
+    }
+}

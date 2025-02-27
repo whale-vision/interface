@@ -1,0 +1,28 @@
+@import '../../shared.module.scss';
+
+.identity {
+    font-family: $Default-Font-Family;
+    cursor: pointer;
+    background-color: $Light;
+
+    padding: 5px;
+}
+
+.identityBar {
+    height: 5px;
+    width: 100%;
+}
+
+.identityBarFill {
+    background-color: $Primary;
+
+    height: 100%;
+}
+
+.identitySelected {
+    background-color: $Grey;
+    font-weight: bold;
+
+    padding: 3px;
+    border: 2px solid $DarkGrey;
+}

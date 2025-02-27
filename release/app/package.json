@@ -1,0 +1,17 @@
+{
+  "name": "whalevision",
+  "version": "10.0.0",
+  "description": "An app for identifying Sperm Whales",
+  "license": "MIT",
+  "author": {
+    "name": "Sammie Fuller",
+    "email": "Sammie.Fuller@Nottingham.ac.uk"
+  },
+  "main": "./dist/main/main.js",
+  "scripts": {
+    "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
+    "postinstall": "npm run rebuild && npm run link-modules",
+    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
+  },
+  "dependencies": {}
+}

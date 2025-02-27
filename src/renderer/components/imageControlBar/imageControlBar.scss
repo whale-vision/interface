@@ -1,0 +1,17 @@
+.hidden {
+    display: none;
+}
+
+.imageControlBar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    margin: 25px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+.imageControlBarCluster {
+    display: flex;
+}

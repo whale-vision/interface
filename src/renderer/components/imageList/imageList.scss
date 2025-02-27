@@ -1,0 +1,13 @@
+@import '../../shared.module.scss';
+
+.imageList {
+    display: flex;
+    overflow: auto;
+
+    margin: 25px;
+    margin-bottom: 0px;
+
+    background-color: $Light;
+
+    box-shadow: 0px 0px 20px $Grey;
+}

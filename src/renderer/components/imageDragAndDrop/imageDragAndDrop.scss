@@ -1,0 +1,50 @@
+@import '../../shared.module.scss';
+
+.dropBorder {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    height: 100vh;
+}
+
+.dragAndDropHint {
+    margin: auto;
+}
+
+.images {
+    display: flex;
+    flex-wrap: wrap;
+
+    overflow: auto;
+
+    margin: 25px;
+}
+
+.dropToolBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 15px;
+
+    background-color: $Dark;
+    color: $Light;
+}
+
+.ProgressBar {
+    padding: 15px;
+
+    background-color: $Dark;
+    color: $Light;
+}
+
+.dragAndDropText {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    padding: 0;
+    margin: 0;
+    margin-left: 10px;
+}

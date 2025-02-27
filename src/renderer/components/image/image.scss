@@ -1,0 +1,47 @@
+@import '../../shared.module.scss';
+
+.imageBorder {
+    display: flex;
+    flex-direction: column;
+
+    width: min-content;
+
+    border: 2px solid #ffffff;
+
+    margin: 10px;
+
+    box-shadow: 0px 0px 10px $Grey;
+
+    cursor: pointer;
+}
+
+.imageSelected {
+    box-shadow: 0px 0px 10px $Primary;
+    border: 2px solid $Primary;
+}
+
+.image {
+    object-fit: cover;
+    width: 100px;
+    height: 100px;
+}
+
+.imageText {
+    width: 100px;
+
+    margin-top: auto;
+    margin-bottom: auto;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    text-align: center;
+
+    font-family: $Default-Font-Family;
+    font-size: $Small-Font-Size;
+}
+
+.imageButtons {
+    width: 100px;
+}

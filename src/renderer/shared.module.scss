@@ -1,0 +1,26 @@
+$Background: #edfafd;
+
+$Primary: #2978a0;
+$Light: #f5f5f5;
+$Grey: #cccccc;
+$DarkGrey: #888888;
+$Dark: #253031;
+
+$Warning: #fed766;
+$Error: #fe4a49;
+
+$Default-Font-Family: 'open sans', sans-serif;
+$Default-Font-Size: 16px;
+$Small-Font-Size: 12px;
+
+.iconLight {
+    fill: $Light;
+    height: 1em;
+    width: 1em;
+}
+
+.iconDark {
+    fill: $Dark;
+    height: 1em;
+    width: 1em;
+}
