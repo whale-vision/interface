@@ -1,6 +1,8 @@
 @import '../../shared.module.scss';
 
 .imageBorder {
+    position: relative;
+
     display: flex;
     flex-direction: column;
 
@@ -44,4 +46,43 @@
 
 .imageButtons {
     width: 100px;
+}
+
+.statusIndicator {
+    position: absolute;
+
+    right: 5px;
+    top: 70px;
+
+    width: 25px;
+    height: 25px;
+
+    border-radius: 50%;
+    background-color: $Grey;
+    color: $Light;
+
+    font-size: 14px;
+    box-shadow: 0px 0px 5px $DarkGrey;
+}
+
+.statusProcessing {
+    animation: throb 1.5s infinite ease-in-out;
+
+    @keyframes throb {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+    }
+}
+
+.statusConfirmed {
+    background-color: $Success;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

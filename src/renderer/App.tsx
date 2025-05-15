@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { Route, MemoryRouter as Router, Routes } from 'react-router-dom';
 
-import { ImageSelector } from './screens/imageSelector/imageSelector';
 import { WhaleIdentifier } from './screens/whaleIdentifier/whaleIdentifier';
 
 export interface WhaleImage {
     file: File;
+    
     selectedIdentity?: string;
+    confirmed?: boolean;
+
+    type?: string;
+
+    embedding?: number[];
     identities?: {
         name: string;
         confidence: number;
@@ -14,8 +19,6 @@ export interface WhaleImage {
 }
 
 export default function App() {
-    const [images, setImages] = useState<WhaleImage[]>([]);
-    const [hasProcessed, setHasProcessed] = useState<boolean>(false);
 
     return (
         <Router>
@@ -23,18 +26,7 @@ export default function App() {
                 <Route
                     path="/"
                     element={
-                        hasProcessed ? (
-                            <WhaleIdentifier
-                                images={images}
-                                setImages={setImages}
-                            />
-                        ) : (
-                            <ImageSelector
-                                images={images}
-                                setImages={setImages}
-                                next={() => setHasProcessed(true)}
-                            />
-                        )
+                        <WhaleIdentifier />
                     }
                 />
             </Routes>

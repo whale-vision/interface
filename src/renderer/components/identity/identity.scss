@@ -6,6 +6,9 @@
     background-color: $Light;
 
     padding: 5px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .identityBar {

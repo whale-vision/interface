@@ -1,13 +1,20 @@
 .whaleIdentifier {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 
     height: 100vh;
 }
 
-.whaleIdentifierDetails {
-    display: flex;
-    overflow: auto;
+.whaleIdentifierImages {
+    flex: 0 0 30%;
 
-    height: fill-available;
+    display: flex;
+}
+
+.whaleIdentifierDetails {
+    flex: 1;
+
+    display: flex;
+
+    height: 100vh;
 }

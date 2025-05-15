@@ -1,14 +1,21 @@
-import React, { useCallback, useState } from 'react';
-import { WhaleImage } from 'renderer/App';
+import React, { useCallback, useEffect, useState } from 'react';
+
+import { WhaleImage } from '../../App';
 import styles from './image.scss';
+
 styles;
 
 interface ImageProps {
     whale: WhaleImage;
+    setWhale: (image: WhaleImage) => void
+
     selected?: boolean;
 }
 
-export const Image = ({ whale, selected }: ImageProps): JSX.Element => {
+export const Image = ({ whale, setWhale, selected }: ImageProps): JSX.Element => {
+    const confirmed = !!whale.confirmed
+    const processing = !whale.identities
+
     const [imageURL, setImageURL] = useState<string>();
 
     const readFile = useCallback(() => {
@@ -22,11 +29,21 @@ export const Image = ({ whale, selected }: ImageProps): JSX.Element => {
         reader.readAsDataURL(whale.file);
     }, [whale]);
 
-    readFile();
+    useEffect(() => {
+        readFile();
+    }, [whale]);
+
+    const toggleConfirmed = useCallback(() => {
+        setWhale({
+            ...whale,
+            confirmed: !whale.confirmed
+        })
+    }, [whale, setWhale])
 
     return (
         <div className={`imageBorder${selected ? ` imageSelected` : ``}`}>
-            <img className={`image`} src={imageURL} alt={whale.file.name} />
+            <img className={`image`} src={imageURL} alt={whale.file.name} draggable="false" />
+            <div onClick={toggleConfirmed} className={`statusIndicator` + (processing? " statusProcessing": confirmed? " statusConfirmed": "")}/>
             <p className={`imageText`}>{whale.file.name}</p>
         </div>
     );

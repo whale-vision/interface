@@ -2,9 +2,11 @@
 
 import { BrowserWindow, app, ipcMain, shell } from 'electron';
 
+import MenuBuilder from './menu';
 // import MenuBuilder from './menu';
 import { PythonShell } from 'python-shell';
 import { autoUpdater } from 'electron-updater';
+import { get } from 'http';
 import log from 'electron-log';
 /**
  * This module executes inside of electron's main process. You can start
@@ -75,8 +77,9 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 1920,
+    height: 1080,
+    fullscreen: false,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
@@ -99,8 +102,6 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
     }
-
-
   });
 
   mainWindow.on('closed', () => {

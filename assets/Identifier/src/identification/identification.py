@@ -37,25 +37,36 @@ def create_average_identities(allIdentities):
 
     return averageIdentities
 
-
-def getIdentities(fileName: str):
-    allIdentities = load_identities(fileName)
-    averageIdentities = create_average_identities(allIdentities)
-
-    return averageIdentities
-
-
 class identifier:
     def __init__(self):
         self.identities = {
-            "flank": getIdentities(FLANK_MODEL),
-            "fluke": getIdentities(FLUKE_MODEL),
+            "flank": load_identities(FLANK_MODEL),
+            "fluke": load_identities(FLUKE_MODEL),
         }
+
+        self.calculateAverages()
+
+    def calculateAverages(self):
+        self.averageIdentities = {
+            "flank": create_average_identities(self.identities["flank"]),
+            "fluke": create_average_identities(self.identities["fluke"]),
+        }
+
+    def addIdentity(self, whale):
+        identity = whale["identity"]
+        type = whale["type"]
+        features = whale["features"]
+
+        if identity not in self.identities[type]:
+            self.identities[type][identity] = []
+
+        self.identities[type][identity].append(features)
+
 
     def identify(self, whale):
         try:
             features = whale["features"]
-            identities = self.identities[whale["type"]]
+            identities = self.averageIdentities[whale["type"]]
 
             distances = [("Unknown", 1)]
 

@@ -1,14 +1,15 @@
+import { DropEvent, useDropzone } from 'react-dropzone';
 import React, { useCallback } from 'react';
-import { Image } from '../image/image';
-import { useDropzone } from 'react-dropzone';
-import styles from './imageDragAndDrop.scss';
+
+import { ReactComponent as AddIcon } from '../../icons/add.svg';
 import { Button } from '../button/button';
-import { WhaleImage } from 'renderer/App';
+import { Image } from '../image/image';
 import ProgressBar from '@ramonak/react-progress-bar';
 import { ReactComponent as RightArrowIcon } from '../../icons/right_arrow.svg';
-import { ReactComponent as AddIcon } from '../../icons/add.svg';
+import { WhaleImage } from '../../App';
+import { stage } from '../../screens/imageSelector/imageSelector';
+import styles from './imageDragAndDrop.scss';
 
-import { stage } from 'renderer/screens/imageSelector/imageSelector';
 styles;
 
 interface DragAndDropToolBarProps {
@@ -65,13 +66,13 @@ const DragAndDropProgressBar = ({
     let progress = 0;
 
     if (currentStage === stage.SEGMENTING) {
-        progress += (currentImage / imageCount) * 80;
+        progress += (currentImage / imageCount) * 50;
     } else if (currentStage === stage.EXTRACTING) {
-        progress += 80;
-        progress += (currentImage / imageCount) * 10;
+        progress += 50;
+        progress += (currentImage / imageCount) * 30;
     } else if (currentStage === stage.IDENTIFYING) {
-        progress += 90;
-        progress += (currentImage / imageCount) * 10;
+        progress += 80;
+        progress += (currentImage / imageCount) * 20;
     }
 
     return (
@@ -107,6 +108,8 @@ export const ImageDragAndDrop = ({
             );
 
             setImages((currentImages) => {
+                console.log(images[0])
+                
                 const uniqueImages = images.filter(
                     (image) =>
                         !currentImages.find(
@@ -124,8 +127,15 @@ export const ImageDragAndDrop = ({
         [setImages],
     );
 
+    const getFiles = async (event: DropEvent) => {
+        // @ts-ignore
+        const files: Promise<File[]> = Array.from(event.dataTransfer?.files);
+        return files;
+    };
+
     const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
         onDrop,
+        getFilesFromEvent: getFiles,
         noClick: true,
     });
 

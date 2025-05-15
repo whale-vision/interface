@@ -1,16 +1,19 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { WhaleImage } from 'renderer/App';
+import React, { useCallback, useEffect, useState } from 'react';
+
 import { Button } from '../button/button';
-import { ReactComponent as RightArrowIcon } from '../../icons/right_arrow.svg';
 import { ReactComponent as LeftArrowIcon } from '../../icons/left_arrow.svg';
+import { ReactComponent as RightArrowIcon } from '../../icons/right_arrow.svg';
+import { WhaleImage } from '../../App';
 import styles from './imageViewer.scss';
+
 styles;
 
 interface ImageViewerProps {
-    currentImage: WhaleImage;
+    imageFile: File;
+    selectedIdentity?: string;
 }
 
-export const ImageViewer = ({ currentImage }: ImageViewerProps) => {
+export const ImageViewer = ({ imageFile, selectedIdentity }: ImageViewerProps) => {
     const [currentImageURL, setCurrentImageURL] = useState<string>();
     const [otherImageURL, setOtherImageURL] = useState<string>();
 
@@ -37,23 +40,23 @@ export const ImageViewer = ({ currentImage }: ImageViewerProps) => {
     );
 
     useEffect(() => {
-        readFile(currentImage.file, setCurrentImageURL);
+        readFile(imageFile, setCurrentImageURL);
         setCurrentOtherImage(0);
-    }, [currentImage, readFile]);
+    }, [imageFile, readFile]);
 
     useEffect(() => {
         if (!otherImageDirectory) return;
-        if (!currentImage.selectedIdentity) return;
-        if (!otherImageDirectory[currentImage.selectedIdentity]) return;
+        if (!selectedIdentity) return;
+        if (!otherImageDirectory[selectedIdentity]) return;
 
         readFile(
-            otherImageDirectory[currentImage.selectedIdentity][
+            otherImageDirectory[selectedIdentity][
                 currentOtherImage
             ],
             setOtherImageURL,
         );
     }, [
-        currentImage.selectedIdentity,
+        selectedIdentity,
         currentOtherImage,
         otherImageDirectory,
         readFile,
@@ -87,12 +90,12 @@ export const ImageViewer = ({ currentImage }: ImageViewerProps) => {
 
     const next = () => {
         if (!otherImageDirectory) return;
-        if (!currentImage.selectedIdentity) return;
-        if (!otherImageDirectory[currentImage.selectedIdentity]) return;
+        if (!selectedIdentity) return;
+        if (!otherImageDirectory[selectedIdentity]) return;
 
         if (
             currentOtherImage
-            < otherImageDirectory[currentImage.selectedIdentity].length - 1
+            < otherImageDirectory[selectedIdentity].length - 1
         ) {
             setCurrentOtherImage(currentOtherImage + 1);
         } else {
@@ -102,14 +105,14 @@ export const ImageViewer = ({ currentImage }: ImageViewerProps) => {
 
     const previous = () => {
         if (!otherImageDirectory) return;
-        if (!currentImage.selectedIdentity) return;
-        if (!otherImageDirectory[currentImage.selectedIdentity]) return;
+        if (!selectedIdentity) return;
+        if (!otherImageDirectory[selectedIdentity]) return;
 
         if (currentOtherImage > 0) {
             setCurrentOtherImage(currentOtherImage - 1);
         } else {
             setCurrentOtherImage(
-                otherImageDirectory[currentImage.selectedIdentity].length - 1,
+                otherImageDirectory[selectedIdentity].length - 1,
             );
         }
     };
@@ -117,11 +120,11 @@ export const ImageViewer = ({ currentImage }: ImageViewerProps) => {
     return (
         <section className={`imageViewer`}>
             <div className={`imageViewerSection`}>
-                {currentImage.file?.name}
+                <h2>{imageFile?.name}</h2>
                 <img
                     className={`imageViewerImage`}
                     src={currentImageURL}
-                    alt={currentImage.file.name}
+                    alt={imageFile.name}
                 />
             </div>
 
@@ -135,19 +138,19 @@ export const ImageViewer = ({ currentImage }: ImageViewerProps) => {
                 onChange={(event) => importDirectory(event.target.files)}
             />
 
-            {otherImageDirectory && currentImage.selectedIdentity ? (
-                otherImageDirectory[currentImage.selectedIdentity] ? (
+            {otherImageDirectory && selectedIdentity ? (
+                otherImageDirectory[selectedIdentity] ? (
                     <div className={`imageViewerSection`}>
                         <div className={`imageViewerControls`}>
-                            Confirmed images of {currentImage.selectedIdentity}
+                            Confirmed images of {selectedIdentity}
                         </div>
                         <img
                             className={`imageViewerImage`}
                             src={otherImageURL}
                             alt={
-                                currentImage.selectedIdentity ?
+                                selectedIdentity ?
                                     otherImageDirectory[
-                                        currentImage.selectedIdentity
+                                        selectedIdentity
                                     ][currentOtherImage].name
                                     : `no image`
                             }
@@ -163,7 +166,7 @@ export const ImageViewer = ({ currentImage }: ImageViewerProps) => {
                     </div>
                 ) : (
                     <div className={`imageViewerControls`}>
-                        No other images of {currentImage.selectedIdentity}
+                        No other images of {selectedIdentity}
                         {` `}
                         found,
                         <Button onClick={selectDirectory}>
@@ -173,7 +176,7 @@ export const ImageViewer = ({ currentImage }: ImageViewerProps) => {
                 )
             ) : (
                 <div className={`imageViewerControls`}>
-                    To view other images of {currentImage.selectedIdentity}
+                    To view other images of {selectedIdentity}
                     <Button onClick={selectDirectory}>
                         select a directory
                     </Button>

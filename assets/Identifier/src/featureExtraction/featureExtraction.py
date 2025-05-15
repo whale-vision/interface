@@ -8,12 +8,13 @@ def getDevice():
     return "cuda:0" if torch.cuda.is_available() else "cpu"
 
 def getPath():
+    if os.path.exists("./assets/Identifier"):
+        return "./assets/Identifier"
+    
     if os.path.exists("../Identifier"):
         return "../Identifier"
-    elif os.path.exists("./assets/Identifier"):
-        return "./assets/Identifier"
-    else: 
-        return "./resources/assets/Identifier"
+    
+    return "./resources/assets/Identifier"
 
 class L2_norm(nn.Module):
     def __init__(self):
@@ -24,7 +25,7 @@ class L2_norm(nn.Module):
 
 
 def loadModel(modelPath):
-    model = models.resnet101(weights=models.ResNet101_Weights.DEFAULT)
+    model = models.resnet101(weights=None)
 
     model.fc = nn.Sequential(nn.Linear(
         in_features=model.fc.in_features, out_features=128, bias=False), L2_norm())
