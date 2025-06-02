@@ -55,17 +55,17 @@ class identifier:
     def addIdentity(self, whale):
         identity = whale["identity"]
         type = whale["type"]
-        features = whale["features"]
+        embedding = whale["embedding"]
 
         if identity not in self.identities[type]:
             self.identities[type][identity] = []
 
-        self.identities[type][identity].append(features)
+        self.identities[type][identity].append(embedding)
 
 
     def identify(self, whale):
         try:
-            features = whale["features"]
+            embedding = whale["embedding"]
             identities = self.averageIdentities[whale["type"]]
 
             distances = [("Unknown", 1)]
@@ -73,7 +73,7 @@ class identifier:
             for name in identities.keys():
                 identity = identities[name]
 
-                distance = np.linalg.norm(np.array(identity) - np.array(features))
+                distance = np.linalg.norm(np.array(identity) - np.array(embedding))
                 distances.append((name, distance))
 
             distances.sort(key=lambda x: x[1])
@@ -96,8 +96,8 @@ class identityCreator:
         }
 
     def addImage(self, whale):
-        features = whale["features"]
-        self.identities[whale["type"]].append(features)
+        embedding = whale["embedding"]
+        self.identities[whale["type"]].append(embedding)
 
     def getIdentity(self):
         # get average position

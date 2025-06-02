@@ -77,7 +77,7 @@ class extractor:
             model = self.models[whale["type"]]
             out = model(image_tensor).cpu().tolist()[0]
 
-            whale.update({"features": out})
+            whale.update({"embedding": out})
             return whale
         
         except Exception as e:

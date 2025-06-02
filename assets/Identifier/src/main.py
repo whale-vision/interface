@@ -97,7 +97,7 @@ async def extractWhales(whales: list[str], websocket):
     await websocket.send(json.dumps([{
             "path": whale["path"],
             "type": whale["type"],
-            "embedding": whale["features"]
+            "embedding": whale["embedding"]
         } for whale in whaleExtracted]))
 
 

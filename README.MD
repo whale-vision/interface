@@ -2,14 +2,14 @@
 
 ## About
 
-Whale Vision is a user-friendly application designed to identify individual sperm whales using state-of-the-art neural networks. Developed for researchers and conservationists, this tool automates the traditionally manual process of photo-identification, accelerating and improving the accuracy of whale monitoring efforts.
+**Whale Vision** is a user-friendly application designed to identify individual sperm whales using state-of-the-art neural networks. Developed for researchers and conservationists, this tool automates the traditionally manual process of photo-identification, accelerating and improving the accuracy of whale monitoring efforts.
 
 ## Features
 
-- **Automated Identification:** Uses deep learning models to recognize individual whales from images of flukes and flanks.
+- **Automated Identification:** Uses deep learning models to recognise individual whales from images of flukes and flanks.
 - **User-Friendly Interface:** Built with Electron and React.js for cross-platform compatibility and ease of use.
-- **GPU Acceleration:** Utilizes GPU resources when available for faster processing, with automatic fallback to CPU if necessary.
-- **Dataset Management:** Easily add new individuals, confirm identifications, and export organized datasets for further research.
+- **GPU Acceleration:** Utilises GPU resources when available for faster processing, with automatic fallback to CPU if necessary.
+- **Dataset Management:** Easily add new individuals, confirm identifications, and export organised datasets for further research.
 
 ## Installation
 
@@ -47,7 +47,7 @@ Whale Vision is a user-friendly application designed to identify individual sper
 
 - The frontend is built with Electron and React.js, providing a seamless experience across platforms.
 - The backend Python server handles all neural network computations and communicates with the frontend via a websocket, allowing for progress tracking and responsive updates.
-- The application is optimized for GPU acceleration but will run on CPU if no CUDA device is detected, ensuring compatibility with a wide range of hardware.
+- The application is optimised for GPU acceleration but will run on CPU if no CUDA device is detected, ensuring compatibility with a wide range of hardware.
 
 ## Scientific Context
 

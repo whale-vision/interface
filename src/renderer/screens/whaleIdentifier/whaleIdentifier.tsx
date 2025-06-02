@@ -93,7 +93,7 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
             data: unprocessedImages.map((image) => ({
                 path: image.file.path,
                 type: image.type,
-                features: image.embedding,
+                embedding: image.embedding,
                 identity: image.selectedIdentity,
             })),
         });
