@@ -4,7 +4,6 @@ channels:
   - nvidia
   - conda-forge
   - defaults
-  - websockets
 dependencies:
   - _tflow_select=2.3.0=mkl
   - aiohttp=3.8.3=py310h8d17308_1

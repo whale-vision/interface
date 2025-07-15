@@ -59,18 +59,16 @@ async def extractImages(images: list, websocket):
 
 async def identifyImages(images: list, websocket):
     imageIdentifier = identifier()
-    
+
     [imageIdentifier.addIdentity(image) for image in images if "identity" in image]
     imageIdentifier.calculateAverages()
 
     otherImages = [image for image in images if not "identity" in image]
-    
+
     return await mapProgress(imageIdentifier.identify, otherImages, "identifying", websocket)
 
 
 def generateIdentificationFile(path: str):
-    print(path)
-
     whales = getListOfFiles(path)
 
     whales = segmentImages(whales)
@@ -106,7 +104,8 @@ async def identifyWhales(whales, websocket):
 
 
     await websocket.send(json.dumps([{
-        "path": whale["path"],
-        "identities": whale["distances"]
-    } for whale in whaleIdentified]))
+            "path": whale["path"],
+            "identities": whale["distances"]
+        } for whale in whaleIdentified]))
+
 

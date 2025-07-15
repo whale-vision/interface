@@ -9,6 +9,7 @@ async def handle(websocket):
     async for message in websocket:
         try: 
             content = json.loads(message)
+            print(f"received: {content["type"]}")
 
             if (content["type"] == "extract"):
                 await websocket.send(f"starting on {getDevice()} with {getPath()}")
