@@ -54,20 +54,27 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
         });
     }, [setImages, images]);
 
-    const sendWebsocketMessage = async (message: string) => {
-        console.log("send message", message);
-        
-        if (websocket) {
-            websocket.send(message)
-        } else {
-            const websocket = new WebSocket(`ws://localhost:8765`);
-            websocket.onopen = () => {
-                websocket.send(message);
-            };
-            websocket.onmessage = websocketEvent;
+    const connectAndSend = async (message: string, retries = 0) => {
+        const ws = new WebSocket('ws://localhost:8765');
 
-            setWebsocket(websocket);
-        }
+        ws.onopen = () => {
+            ws.send(message);
+            retries = 0;
+
+            setWebsocket(ws);
+        };
+
+        ws.onerror = (event) => {
+            console.log("Connection error:", event);
+            if (retries < 100) {
+                retries++;
+                setTimeout(() => connectAndSend(message, retries), 1000);
+            } else {
+                console.log("Max retries reached");
+            }
+        };
+
+        ws.onmessage = websocketEvent;
     }
 
     const identifyImages = useCallback((selectedImages?: WhaleImage[]) => {
@@ -98,7 +105,7 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
             })),
         });
 
-        sendWebsocketMessage(message);
+        connectAndSend(message);
     }, [images, updateImages]);
 
     const extractImages = useCallback((images: WhaleImage[]) => {
@@ -109,7 +116,7 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
             fileNames: images.map((image) => image.file.path),
         });
 
-        sendWebsocketMessage(message);
+        connectAndSend(message);
     }, [updateImages]);
 
     const save = () => {
@@ -121,7 +128,7 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
             })),
         });
 
-        sendWebsocketMessage(message);
+        connectAndSend(message);
     };
     
     const websocketEvent = useCallback(async (event: MessageEvent) => {
