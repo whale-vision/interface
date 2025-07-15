@@ -154,7 +154,6 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
                     selectedImage={selectedImage}
                     setSelectedImage={setSelectedImage}
                     processImages={extractImages}
-                    reidentifyImages={identifyImages}
                     saveImages={save}
                 />
             </section>

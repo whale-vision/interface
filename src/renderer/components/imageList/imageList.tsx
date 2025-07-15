@@ -20,7 +20,6 @@ interface ImageListProps {
     setImages: React.Dispatch<React.SetStateAction<WhaleImage[]>>;
 
     processImages: (images: WhaleImage[]) => void;
-    reidentifyImages: (images?: WhaleImage[]) => void;
     
     selectedImage: WhaleImage | undefined;
     setSelectedImage: React.Dispatch<React.SetStateAction<WhaleImage | undefined>>;
@@ -32,7 +31,6 @@ export const ImageList = ({
     images,
     setImages,
     processImages,
-    reidentifyImages,
     selectedImage,
     setSelectedImage,
     saveImages,
@@ -102,6 +100,11 @@ export const ImageList = ({
         });
     }, [setImages]);
 
+    const clearImages = () => {
+        setImages([]);
+        setSelectedImage(undefined);
+    };
+
     return (
         <div className="identitiesSection">
             <div className={`identitiesList`} {...getRootProps()}>
@@ -152,9 +155,10 @@ export const ImageList = ({
             
             <div className={`imageControlBar`}>
                 <Button
-                    onClick={() => reidentifyImages()}
+                    altColour
+                    onClick={() => clearImages()}
                 >
-                    Reidentify Unconfirmed
+                    Clear
                 </Button>
                 <Button
                     onClick={saveImages}
