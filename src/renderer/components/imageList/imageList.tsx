@@ -5,14 +5,26 @@ import { Button } from '../button/button';
 import { Image } from '../image/image';
 import { ImageControlBar } from '../imageControlBar/imageControlBar';
 import { WhaleImage } from '../../App';
+import { fromEvent } from "file-selector";
+// @ts-ignore
 import styles from './imageList.scss';
 
 styles;
 
-const getFiles = async (event: DropEvent) => {
+const getFiles = async (event: DropEvent): Promise<File[]> => {
     // @ts-ignore
-    const files: Promise<File[]> = Array.from(event.dataTransfer?.files);
-    return files;
+    const files: File[] = Array.from(event.dataTransfer?.files);
+
+    const selector = fromEvent(event);
+    const resolvedFiles = await selector;
+
+    const filesFromDirectories = resolvedFiles.filter(
+        // @ts-ignore
+        (file) => file.path
+    )
+
+    // @ts-ignore
+    return [...files, ...filesFromDirectories];
 };
 
 interface ImageListProps {
@@ -35,36 +47,26 @@ export const ImageList = ({
     setSelectedImage,
     saveImages,
 }: ImageListProps) => {
-    const onDrop = useCallback(
-        (acceptedFiles: File[]) => {
-            const images = acceptedFiles.filter((file) =>
-                file.type.startsWith(`image/`),
+
+    const onDrop = useCallback(async (acceptedFiles: File[], fileRejections: any[], event: DropEvent) => {
+        const imageFiles = acceptedFiles
+            .filter(file => file.type.startsWith('image/'));
+
+        setImages(currentImages => {
+            const uniqueImages = imageFiles.filter(
+            file => !currentImages.find(img => img.file.path === file.path)
             );
-            console.log(acceptedFiles)
+            const uniqueImageObjects = uniqueImages.map(file => ({ file }));
+            processImages(uniqueImageObjects);
 
-            setImages((currentImages) => {
-                const uniqueImages = images.filter(
-                    (image) =>
-                        !currentImages.find(
-                            (currentImage) =>
-                                currentImage.file.path === image.path,
-                        ),
-                );
+            if (currentImages.length === 0 && uniqueImageObjects.length > 0) {
+            setSelectedImage(uniqueImageObjects[0]);
+            }
 
-                const uniqueImageObjects = uniqueImages.map((image) => ({
-                    file: image,
-                }))
+            return currentImages.concat(uniqueImageObjects);
+        });
+    }, [setImages, processImages, setSelectedImage]);
 
-                processImages(uniqueImageObjects)
-                if (currentImages.length === 0 && uniqueImageObjects.length > 0) {
-                    setSelectedImage(uniqueImageObjects[0]);
-                }
-
-                return currentImages.concat(uniqueImageObjects);
-            });
-        },
-        [setImages],
-    );
 
     const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
         onDrop,
