@@ -160,8 +160,8 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
             {selectedImage && (
                 <section className={`whaleIdentifierDetails`}>
                     <IdentityList
-                        whale={images.find(x => x.file.path === selectedImage.file.path)}
-                        setImages={setImages}
+                        whale={selectedImage}
+                        setSelectedImage={setSelectedImage}
                     />
                     <ImageViewer
                         imageFile={selectedImage.file}

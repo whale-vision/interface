@@ -10,63 +10,49 @@ styles;
 
 interface IdentityListProps {
     whale: WhaleImage | undefined;
-    setImages: React.Dispatch<React.SetStateAction<WhaleImage[]>>;
+    setSelectedImage: React.Dispatch<React.SetStateAction<WhaleImage | undefined>>;
 }
 
 export const IdentityList = ({
     whale,
-    setImages,
+    setSelectedImage,
 }: IdentityListProps) => {
     const [showPrompt, setShowPrompt] = React.useState(false);
 
     const setIdentity = (identity: string) => {
-        setImages((images) =>
-            images.map((image) => {
-                if (image.file.path !== whale?.file.path) return image;
-
-                return {
-                    ...image,
-                    selectedIdentity: identity,
-                };
-            }),
+        setSelectedImage((image) =>
+            image ? ({
+                ...image,
+                selectedIdentity: identity,
+            }) : undefined
         );
     };
 
     const confirmIdentity = () => {
-        setImages((images) =>
-            images.map((image) => {
-                if (image.file.path !== whale?.file.path) return image;
+        if (!whale) return;
 
-                return {
-                    ...image,
-                    confirmed: !image.confirmed,
-                };
-            }),
+        setSelectedImage((image) => 
+            image ? ({
+                ...image,
+                confirmed: true,
+            }) : undefined
         );
     };
 
-    console.log("whale", whale)
-
     const setIdentityName = (name: string) => {
-        setImages((images) => {
-            const newImages = images.map((image) => {
-                if (image.file.path !== whale?.file.path) return image;
+        if (!whale) return;
 
-                return {
-                    ...image,
-                    identities: [
-                        { name, confidence: 0 },
-                        ...(image.identities || []),
-                    ],
-                    selectedIdentity: name,
-                    confirmed: true,
-                };
-            });
-
-            // identifyImages(newImages);
-
-            return newImages;
-        });
+        setSelectedImage((image) =>
+            image ? ({
+                ...image,
+                identities: [
+                    { name, confidence: 0 },
+                    ...(image.identities || []),
+                ],
+                selectedIdentity: name,
+                confirmed: true,
+            }) : undefined
+        );
 
         setShowPrompt(false);
     }

@@ -32,6 +32,7 @@ export const ImageViewer = ({ imageFile, selectedIdentity }: ImageViewerProps) =
             reader.onload = (event) => {
                 const dataURL = event.target?.result;
                 if (typeof dataURL === `string`) setter(dataURL);
+                console.log("set url")
             };
 
             reader.readAsDataURL(image);
@@ -45,16 +46,24 @@ export const ImageViewer = ({ imageFile, selectedIdentity }: ImageViewerProps) =
     }, [imageFile, readFile]);
 
     useEffect(() => {
-        if (!otherImageDirectory) return;
-        if (!selectedIdentity) return;
-        if (!otherImageDirectory[selectedIdentity]) return;
+        if (!otherImageDirectory) return setOtherImageURL(undefined);;
+        if (!selectedIdentity) return setOtherImageURL(undefined);;
 
-        readFile(
-            otherImageDirectory[selectedIdentity][
-                currentOtherImage
-            ],
-            setOtherImageURL,
-        );
+        const identityID: string | undefined = selectedIdentity.match(/PMOD\d\d\d/)?.[0];
+
+        if (!identityID) return setOtherImageURL(undefined);
+        if (!otherImageDirectory[identityID]) return setOtherImageURL(undefined);
+        
+        try {
+            readFile(
+                otherImageDirectory[identityID][currentOtherImage],
+                setOtherImageURL,
+            );
+        } catch (error) {
+            console.error("Error reading file:", error);
+            setOtherImageURL(undefined);
+        }
+        
     }, [
         selectedIdentity,
         currentOtherImage,
@@ -72,30 +81,38 @@ export const ImageViewer = ({ imageFile, selectedIdentity }: ImageViewerProps) =
             const whaleImages: { [key: string]: File[] } = {};
 
             for (let i = 0; i < files.length; i++) {
-                const path = files[i].path.split(/\\|\//);
-                const whale = path[path.length - 2];
+                const path = files[i].path;
+                const whaleID: string | undefined = path.match(/PMOD\d\d\d/)?.[0];
 
-                if (!whaleImages[whale]) {
-                    whaleImages[whale] = [];
+                if (!whaleID) continue;
+                if (!files[i].type.startsWith('image/')) {
+                    continue;
                 }
 
-                whaleImages[whale].push(files[i]);
+                if (!whaleImages[whaleID]) {
+                    whaleImages[whaleID] = [];
+                }
+
+                whaleImages[whaleID].push(files[i]);
             }
 
             setOtherImageDirectory(whaleImages);
             setCurrentOtherImage(0);
         },
-        [setOtherImageDirectory, setCurrentOtherImage],
+        [setOtherImageDirectory, setCurrentOtherImage, currentOtherImage, otherImageDirectory],
     );
 
     const next = () => {
-        if (!otherImageDirectory) return;
         if (!selectedIdentity) return;
-        if (!otherImageDirectory[selectedIdentity]) return;
+        const identityID: string | undefined = selectedIdentity.match(/PMOD\d\d\d/)?.[0];
+
+        if (!otherImageDirectory) return;
+        if (!identityID) return;
+        if (!otherImageDirectory[identityID]) return;
 
         if (
             currentOtherImage
-            < otherImageDirectory[selectedIdentity].length - 1
+            < otherImageDirectory[identityID].length - 1
         ) {
             setCurrentOtherImage(currentOtherImage + 1);
         } else {
@@ -104,15 +121,18 @@ export const ImageViewer = ({ imageFile, selectedIdentity }: ImageViewerProps) =
     };
 
     const previous = () => {
-        if (!otherImageDirectory) return;
         if (!selectedIdentity) return;
-        if (!otherImageDirectory[selectedIdentity]) return;
+        const identityID: string | undefined = selectedIdentity.match(/PMOD\d\d\d/)?.[0];
+
+        if (!otherImageDirectory) return;
+        if (!identityID) return;
+        if (!otherImageDirectory[identityID]) return;
 
         if (currentOtherImage > 0) {
             setCurrentOtherImage(currentOtherImage - 1);
         } else {
             setCurrentOtherImage(
-                otherImageDirectory[selectedIdentity].length - 1,
+                otherImageDirectory[identityID].length - 1,
             );
         }
     };
@@ -138,42 +158,27 @@ export const ImageViewer = ({ imageFile, selectedIdentity }: ImageViewerProps) =
                 onChange={(event) => importDirectory(event.target.files)}
             />
 
-            {otherImageDirectory && selectedIdentity ? (
-                otherImageDirectory[selectedIdentity] ? (
-                    <div className={`imageViewerSection`}>
-                        <div className={`imageViewerControls`}>
-                            Confirmed images of {selectedIdentity}
-                        </div>
-                        <img
-                            className={`imageViewerImage`}
-                            src={otherImageURL}
-                            alt={
-                                selectedIdentity ?
-                                    otherImageDirectory[
-                                        selectedIdentity
-                                    ][currentOtherImage].name
-                                    : `no image`
-                            }
-                        />
-                        <div className={`imageViewerControls`}>
-                            <Button onClick={previous}>
-                                <LeftArrowIcon className={`iconDark`} />
-                            </Button>
-                            <Button onClick={next}>
-                                <RightArrowIcon className={`iconDark`} />
-                            </Button>
-                        </div>
-                    </div>
-                ) : (
+            {otherImageURL ? (
+                <div className={`imageViewerSection`}>
                     <div className={`imageViewerControls`}>
-                        No other images of {selectedIdentity}
-                        {` `}
-                        found,
-                        <Button onClick={selectDirectory}>
-                            select a directory
+                        Confirmed images of {selectedIdentity}
+                    </div>
+                    <img
+                        className={`imageViewerImage`}
+                        src={otherImageURL}
+                        alt={
+                            selectedIdentity
+                        }
+                    />
+                    <div className={`imageViewerControls`}>
+                        <Button onClick={previous}>
+                            <LeftArrowIcon className={`iconDark`} />
+                        </Button>
+                        <Button onClick={next}>
+                            <RightArrowIcon className={`iconDark`} />
                         </Button>
                     </div>
-                )
+                </div>
             ) : (
                 <div className={`imageViewerControls`}>
                     To view other images of {selectedIdentity}
