@@ -1,20 +1,23 @@
+import { WhaleImage, WhaleImageGroup } from '../../App';
+
 import { Button } from '../button/button';
 import { Identity } from '../identity/identity';
 import { ImageList } from '../imageList/imageList';
 import { Prompt } from '../prompt/prompt';
 import React from 'react';
-import { WhaleImage } from '../../App';
 import styles from './identityList.scss';
 
 styles;
 
 interface IdentityListProps {
     whale: WhaleImage | undefined;
+    group: WhaleImageGroup | undefined;
     setSelectedImage: React.Dispatch<React.SetStateAction<WhaleImage | undefined>>;
 }
 
 export const IdentityList = ({
     whale,
+    group,
     setSelectedImage,
 }: IdentityListProps) => {
     const [showPrompt, setShowPrompt] = React.useState(false);
@@ -66,11 +69,11 @@ export const IdentityList = ({
                 onCancel={() => setShowPrompt(false)}
             />}
             <div className={`identityList`}>
-                {whale?.identities?.map((identity) => (
+                {group?.identities?.map((identity) => (
                     <Identity
                         key={identity.name}
                         identity={identity}
-                        selected={identity.name === whale.selectedIdentity}
+                        selected={identity.name === group.selectedIdentity}
                         setIdentity={() => setIdentity(identity.name)}
                     />
                 ))}

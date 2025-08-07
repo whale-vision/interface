@@ -1,10 +1,10 @@
 import { DropEvent, useDropzone } from 'react-dropzone';
 import React, { useCallback, useState } from 'react';
+import { WhaleImage, WhaleImageGroup } from '../../App';
 
 import { Button } from '../button/button';
 import { Image } from '../image/image';
 import { ImageControlBar } from '../imageControlBar/imageControlBar';
-import { WhaleImage } from '../../App';
 import { fromEvent } from "file-selector";
 // @ts-ignore
 import styles from './imageList.scss';
@@ -28,8 +28,8 @@ const getFiles = async (event: DropEvent): Promise<File[]> => {
 };
 
 interface ImageListProps {
-    images: WhaleImage[];
-    setImages: React.Dispatch<React.SetStateAction<WhaleImage[]>>;
+    imageGroups: WhaleImageGroup[];
+    setImageGroups: React.Dispatch<React.SetStateAction<WhaleImageGroup[]>>;
 
     processImages: (images: WhaleImage[]) => void;
     
@@ -40,32 +40,59 @@ interface ImageListProps {
 }
 
 export const ImageList = ({
-    images,
-    setImages,
+    imageGroups: images,
+    setImageGroups: setImages,
     processImages,
     selectedImage,
     setSelectedImage,
     saveImages,
 }: ImageListProps) => {
-
-    const onDrop = useCallback(async (acceptedFiles: File[], fileRejections: any[], event: DropEvent) => {
+    const onDrop = useCallback(async (acceptedFiles: File[]) => {
         const imageFiles = acceptedFiles
             .filter(file => file.type.startsWith('image/'));
 
+        const newImages = imageFiles.map(file => ({ file }));
+
+        const imageGroup: WhaleImageGroup = {
+            name: `Group ${images.length + 1}`,
+            images: newImages,
+        }
+
+
+        if (images.length === 0 && newImages.length > 0) {
+            setSelectedImage(newImages[0]);
+        }
+
+        processImages(newImages);
+
         setImages(currentImages => {
-            const uniqueImages = imageFiles.filter(
-            file => !currentImages.find(img => img.file.path === file.path)
-            );
-            const uniqueImageObjects = uniqueImages.map(file => ({ file }));
-            processImages(uniqueImageObjects);
-
-            if (currentImages.length === 0 && uniqueImageObjects.length > 0) {
-            setSelectedImage(uniqueImageObjects[0]);
-            }
-
-            return currentImages.concat(uniqueImageObjects);
+            currentImages.push(imageGroup);
+            return currentImages;
         });
     }, [setImages, processImages, setSelectedImage]);
+
+
+    const moveImage = useCallback((imageName: string, targetGroup: WhaleImageGroup) => {
+        const image = images.flatMap(group => group.images).find(img => img.file.name === imageName);
+        if (!image) return;
+
+        setImages(currentImages => {
+            const updatedImages = currentImages.map(group => {
+                const newImages = group.images.filter(img => img.file.path !== image.file.path);
+
+                if (group.name === targetGroup.name) {
+                    newImages.push(image);
+                }
+
+                return {
+                    ...group,
+                    images: newImages,
+                };
+            });
+            return updatedImages;
+        });
+
+    }, [setImages]);
 
 
     const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
@@ -73,34 +100,6 @@ export const ImageList = ({
         getFilesFromEvent: getFiles,
         noClick: true,
     });
-
-    const categorisedImages = Object.entries(
-        images.reduce((acc, image) => {
-            const identity = image.selectedIdentity || 'processing';
-            if (!acc[identity]) {
-                acc[identity] = [];
-            }
-            acc[identity].push(image);
-            return acc;
-        }, {} as { [key: string]: WhaleImage[] })
-    ).map(([identity, images]) => ({ identity, images }));
-
-    const sortedCategorisedImages = categorisedImages.sort((a, b) => {
-        if (a.identity === 'processing') return -1;
-        if (b.identity === 'processing') return 1;
-        return a.identity.localeCompare(b.identity);
-    });
-
-    const setConfirmed = useCallback((whale: WhaleImage) => {
-        setImages((images) => {
-            return images.map((image) => {
-                if (image.file.path === whale.file.path) {
-                    return { ...image, confirmed: whale.confirmed };
-                }
-                return image;
-            });
-        });
-    }, [setImages]);
 
     const clearImages = () => {
         setImages([]);
@@ -116,36 +115,28 @@ export const ImageList = ({
                         Drag and drop images to be identified here
                     </div>
                 ) : null}
-                {sortedCategorisedImages.map((whale) => (
+                {images.map((group) => (
                     <div
-                        key={whale.identity}
+                        key={group.name}
                         className={`imageCategory`}
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => {
-                            if (whale.identity === 'processing') return;
                             e.preventDefault();
                             const imageName = e.dataTransfer.getData('text/plain');
-                            setImages((currentImages) =>
-                                currentImages.map((image) =>
-                                    image.file.name === imageName
-                                        ? { ...image, selectedIdentity: whale.identity, confirmed: true }
-                                        : image
-                                )
-                            );
+                            moveImage(imageName, group);
                         }}
                     >
-                        <h3>{whale.identity}</h3>
+                        <h3>{group.name}</h3>
                         <div className={`imageList`}>
-                            {whale.images.map((image) => (
+                            {group.images.map((image) => (
                                 <div
                                     key={image.file.path}
-                                    draggable={!!image.selectedIdentity}
-                                    onDragStart={(e) => image.selectedIdentity && e.dataTransfer.setData('text/plain', image.file.name)}
-                                    onClick={() => image.selectedIdentity && setSelectedImage(image)}
+                                    draggable
+                                    onDragStart={(e) => e.dataTransfer.setData('text/plain', image.file.name)}
+                                    onClick={() => setSelectedImage(image)}
                                 >
                                     <Image
                                         whale={image}
-                                        setWhale={setConfirmed}
                                         selected={selectedImage?.file?.path === image.file.path}
                                     />
                                 </div>

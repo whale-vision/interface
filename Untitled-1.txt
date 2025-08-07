@@ -1,0 +1,13 @@
+
+drag into same group instead of splitting into individual whales
+do group id instead
+always keep the drag and drop text on screen
+
+
+delete identity
+
+
+make selecting reference images and comparison images easier, with a little slider instead
+
+
+saving images

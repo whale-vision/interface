@@ -6,9 +6,6 @@ import { WhaleIdentifier } from './screens/whaleIdentifier/whaleIdentifier';
 export interface WhaleImage {
     file: File;
     
-    selectedIdentity?: string;
-    confirmed?: boolean;
-
     type?: string;
 
     embedding?: number[];
@@ -16,6 +13,18 @@ export interface WhaleImage {
         name: string;
         confidence: number;
     }[];
+}
+
+export interface WhaleImageGroup {
+    name: string;
+
+    identities?: {
+        name: string;
+        confidence: number;
+    }[];
+    selectedIdentity?: string;
+
+    images: WhaleImage[];
 }
 
 export default function App() {

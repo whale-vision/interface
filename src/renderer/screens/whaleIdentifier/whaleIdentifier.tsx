@@ -1,9 +1,9 @@
+import { WhaleImage, WhaleImageGroup } from '../../App';
 import { useCallback, useEffect, useState } from 'react';
 
 import { IdentityList } from '../../components/identityList/identityList';
 import { ImageList } from '../../components/imageList/imageList';
 import { ImageViewer } from '../../components/imageViewer/imageViewer';
-import { WhaleImage } from '../../App';
 import styles from './whaleIdentifier.scss';
 
 styles;
@@ -11,7 +11,7 @@ styles;
 interface WhaleIdentifierProps {}
 
 export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
-    const [images, setImages] = useState<WhaleImage[]>([]);
+    const [imageGroups, setImageGroups] = useState<WhaleImageGroup[]>([]);
     
     const [selectedImage, setSelectedImage] = useState<WhaleImage | undefined>(undefined);
 
@@ -19,40 +19,66 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
 
 
     const updateImages = useCallback((data: any) => {
-        setImages((images) => {
-            const newImages = images.map((image) => {
-                const dataImage = data.find((x: any) => x.path === image.file.path);
+        setImageGroups((imageGroups) => {
+            const newImageGroups = imageGroups.map((group) => {
+                const identities = [] as { name: string; confidence: number }[];
 
-                if (!dataImage) return image;
+                const images = group.images.map((image) => {
+                    const dataImage = data.find((x: any) => x.path === image.file.path);
 
-                if (dataImage.identities) {
-                    image.identities = dataImage.identities.map(
-                        (identity: [string, number]) => ({
-                            name: identity[0],
-                            confidence: identity[1],
-                        }),
-                    );
+                    if (!dataImage) return image;
 
-                    image.selectedIdentity = image.identities?.length ?
-                        image.identities[0].name
-                        : undefined;
+                    if (dataImage.identities) {
+                        image.identities = dataImage.identities.map(
+                            (identity: [string, number]) => ({
+                                name: identity[0],
+                                confidence: identity[1],
+                            }),
+                        );
 
-                }
+                        identities.push(dataImage.identities);
+                    }
 
-                if (dataImage.embedding) {
-                    image.embedding = dataImage.embedding;
-                    image.type = dataImage.type;
-                }
+                    if (dataImage.embedding) {
+                        image.embedding = dataImage.embedding;
+                        image.type = dataImage.type;
+                    }
 
-                return image;
+                    return image;
+                });
+
+                const averagedIdentities: { [name: string]: number[] } = {};
+
+                images.forEach((image) => {
+                    image.identities?.forEach((identity) => {
+                        if (!averagedIdentities[identity.name]) {
+                            averagedIdentities[identity.name] = [];
+                        }
+                        averagedIdentities[identity.name].push(identity.confidence);
+                    });
+                });
+
+                const averaged = Object.entries(averagedIdentities).map(([name, confidences]) => ({
+                    name,
+                    confidence: confidences.reduce((a, b) => a + b, 0) / confidences.length,
+                }));
+
+                averaged.sort((a, b) => a.confidence - b.confidence);
+
+                return {
+                    ...group,
+                    identities: averaged,
+                    selectedIdentity: group.selectedIdentity || averaged[0]?.name,
+                    images: images,
+                };
             });
 
-            console.log("newImages", newImages);
-            identifyImages(newImages);
+            console.log("newImageGroups", newImageGroups);
+            identifyImages(newImageGroups);
 
-            return newImages;
+            return newImageGroups;
         });
-    }, [setImages, images]);
+    }, [setImageGroups, imageGroups]);
 
     const connectAndSend = async (message: string, retries = 0) => {
         const ws = new WebSocket('ws://localhost:8765');
@@ -77,20 +103,36 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
         ws.onmessage = websocketEvent;
     }
 
-    const identifyImages = useCallback((selectedImages?: WhaleImage[]) => {
-        const unprocessedImages = selectedImages ? 
-            selectedImages.filter((image) => !image.identities && image.embedding):
-            images.filter((image) => !image.confirmed && image.embedding)
+    const imagesFromGroups = useCallback((groups: WhaleImageGroup[]) => {
+        const images: WhaleImage[] = [];
+        groups.forEach((group) => {
+            images.push(...group.images);
+        });
+        return images;
+    }, []);
+
+    const findImageGroup = useCallback((image: WhaleImage) => {
+        return imageGroups.find((group) => group.images.some((img) => img.file.path === image.file.path));
+    }, [imageGroups]);
+
+    const identifyImages = useCallback((selectedImages?: WhaleImageGroup[]) => {
+        const unprocessedImages = selectedImages ?
+            imagesFromGroups(selectedImages).filter((image) => !image.identities && image.embedding) :
+            imagesFromGroups(imageGroups).filter((image) => !image.identities && image.embedding);
+
 
         if (!selectedImages) {
-            setImages((images) => {
-                return images.map((image) => {
-                    if (!image.confirmed && image.embedding) {
-                        return {...image, identities: undefined, selectedIdentity: undefined}
-                    }
-                    return image
-                })
-            })
+            setImageGroups((imageGroups) => {
+                return imageGroups.map((group) => {
+                    const images = group.images.map((image) => {
+                        if (image.embedding) {
+                            return {...image, identities: undefined}
+                        }
+                        return image;
+                    });
+                    return {...group, images};
+                });
+            });
         }
 
         if (unprocessedImages.length === 0) return;
@@ -101,12 +143,11 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
                 path: image.file.path,
                 type: image.type,
                 embedding: image.embedding,
-                identity: image.selectedIdentity,
             })),
         });
 
         connectAndSend(message);
-    }, [images, updateImages]);
+    }, [imageGroups, updateImages]);
 
     const extractImages = useCallback((images: WhaleImage[]) => {
         if (images.length === 0) return;
@@ -120,15 +161,15 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
     }, [updateImages]);
 
     const save = () => {
-        const message = JSON.stringify({
-            type: `save`,
-            whaleIdentities: images.map((image) => ({
-                "file": image.file.path,
-                "selectedIdentity": image.selectedIdentity,
-            })),
-        });
+        // const message = JSON.stringify({
+        //     type: `save`,
+        //     whaleIdentities: images.map((image) => ({
+        //         "file": image.file.path,
+        //         "selectedIdentity": image.selectedIdentity,
+        //     })),
+        // });
 
-        connectAndSend(message);
+        // connectAndSend(message);
     };
     
     const websocketEvent = useCallback(async (event: MessageEvent) => {
@@ -138,19 +179,18 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
 
         if (message.startsWith(`[`)) {
             const data = JSON.parse(message);
-            console.log("images received", images);
 
             updateImages(data);
         }
-    }, [updateImages, images, identifyImages]);
+    }, [updateImages, imageGroups, identifyImages]);
 
 
     return (
         <section className={`whaleIdentifier`}>
             <section className={`whaleIdentifierImages`}>
                 <ImageList
-                    images={images}
-                    setImages={setImages}
+                    imageGroups={imageGroups}
+                    setImageGroups={setImageGroups}
                     selectedImage={selectedImage}
                     setSelectedImage={setSelectedImage}
                     processImages={extractImages}
@@ -161,11 +201,12 @@ export const WhaleIdentifier = ({}: WhaleIdentifierProps) => {
                 <section className={`whaleIdentifierDetails`}>
                     <IdentityList
                         whale={selectedImage}
+                        group={findImageGroup(selectedImage)}
                         setSelectedImage={setSelectedImage}
                     />
                     <ImageViewer
                         imageFile={selectedImage.file}
-                        selectedIdentity={selectedImage.selectedIdentity}
+                        selectedIdentity={findImageGroup(selectedImage)?.selectedIdentity}
                     />
                 </section>
             )}
